@@ -1,0 +1,10 @@
+android/.gradle/
+android/build/
+android/app/build/
+*.apk
+windows/**/bin/
+windows/**/obj/
+windows/dist/
+*.exe
+__pycache__/
+.DS_Store
