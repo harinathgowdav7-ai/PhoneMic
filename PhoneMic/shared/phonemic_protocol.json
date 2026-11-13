@@ -1,0 +1,25 @@
+{
+  "protocolName": "PhoneMic",
+  "version": "1.0.0",
+  "magicBytes": "PMIC",
+  "defaultPort": 55123,
+  "discoveryRequestMagic": "PHONEMIC_DISCOVER_V1",
+  "discoveryResponseMagic": "PHONEMIC_ANNOUNCE_V1",
+  "audioDefaults": {
+    "sampleRate": 48000,
+    "bitsPerSample": 16,
+    "channels": 1,
+    "encoding": "PCM_S16LE",
+    "frameDurationMs": 10,
+    "samplesPerFrame": 480,
+    "bytesPerFrame": 960,
+    "targetLatencyMs": 40
+  },
+  "security": {
+    "cipher": "AES-256-GCM",
+    "keyExchange": "ECDH-P256-HKDF-SHA256",
+    "nonceLengthBytes": 12,
+    "tagLengthBytes": 16,
+    "sameSubnetOnlyDefault": true
+  }
+}

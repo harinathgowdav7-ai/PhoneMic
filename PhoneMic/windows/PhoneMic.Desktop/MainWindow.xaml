@@ -1,0 +1,970 @@
+<Window x:Class="PhoneMic.Desktop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PhoneMic – Phone to PC Microphone"
+        Width="1220" Height="740"
+        MinWidth="1060" MinHeight="660"
+        WindowStartupLocation="CenterScreen"
+        Background="#F8FAFC"
+        FontFamily="Segoe UI">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <!-- Left Sidebar (Exact 220px width matching reference) -->
+            <ColumnDefinition Width="225" />
+            <!-- Main Content Area -->
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- ==================== LEFT SIDEBAR ==================== -->
+        <Border Grid.Column="0" Background="#F4F8F5" BorderBrush="#E5E7EB" BorderThickness="0,0,1,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="110" />
+                </Grid.RowDefinitions>
+
+                <!-- Brand Header: Green Rounded Square Mic Icon + PhoneMic + Phone to PC Microphone -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="20,24,16,22">
+                    <Border Width="48" Height="48" CornerRadius="13">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                <GradientStop Color="#22C55E" Offset="0" />
+                                <GradientStop Color="#15803D" Offset="1" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <TextBlock Text="🎙" FontSize="24" Foreground="White"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Margin="12,2,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="PhoneMic" FontSize="20" FontWeight="Bold" Foreground="#0F172A" />
+                        <TextBlock Text="Phone to PC Microphone" FontSize="11.5" Foreground="#64748B" Margin="0,2,0,0" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Navigation Buttons -->
+                <StackPanel Grid.Row="1" Margin="14,4,14,0">
+                    <Button x:Name="BtnNavDashboard" Style="{StaticResource SidebarButtonStyle}"
+                            Background="#DCFCE7" Click="OnNavDashboardClick">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⌂" FontSize="17" Width="28" Foreground="#15803D" VerticalAlignment="Center" />
+                            <TextBlock Text="Dashboard" FontSize="15" FontWeight="SemiBold" Foreground="#15803D" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="BtnNavDevices" Style="{StaticResource SidebarButtonStyle}" Click="OnNavDevicesClick">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📱" FontSize="15" Width="28" Foreground="#0F172A" VerticalAlignment="Center" />
+                            <TextBlock Text="Devices" FontSize="15" FontWeight="Medium" Foreground="#0F172A" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="BtnNavAudio" Style="{StaticResource SidebarButtonStyle}" Click="OnNavAudioClick">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⫶" FontSize="17" FontWeight="Bold" Width="28" Foreground="#0F172A" VerticalAlignment="Center" />
+                            <TextBlock Text="Audio" FontSize="15" FontWeight="Medium" Foreground="#0F172A" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="BtnNavNetwork" Style="{StaticResource SidebarButtonStyle}" Click="OnNavNetworkClick">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🛜" FontSize="15" Width="28" Foreground="#0F172A" VerticalAlignment="Center" />
+                            <TextBlock Text="Network" FontSize="15" FontWeight="Medium" Foreground="#0F172A" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="BtnNavSettings" Style="{StaticResource SidebarButtonStyle}" Click="OnNavSettingsClick">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⚙" FontSize="16" Width="28" Foreground="#0F172A" VerticalAlignment="Center" />
+                            <TextBlock Text="Settings" FontSize="15" FontWeight="Medium" Foreground="#0F172A" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="BtnNavAbout" Style="{StaticResource SidebarButtonStyle}" Click="OnNavAboutClick">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="ⓘ" FontSize="16" Width="28" Foreground="#0F172A" VerticalAlignment="Center" />
+                            <TextBlock Text="About" FontSize="15" FontWeight="Medium" Foreground="#0F172A" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <!-- Bottom Green Wave & Version Label v1.0.0 -->
+                <Grid Grid.Row="2">
+                    <Path Data="M 0,55 C 65,25 135,85 225,30 L 225,110 L 0,110 Z" Opacity="0.65">
+                        <Path.Fill>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                <GradientStop Color="#BBF7D0" Offset="0" />
+                                <GradientStop Color="#86EFAC" Offset="1" />
+                            </LinearGradientBrush>
+                        </Path.Fill>
+                    </Path>
+                    <TextBlock Text="v1.0.0" FontSize="13.5" Foreground="#334155"
+                               VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="22,0,0,18" />
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- ==================== MAIN CONTENT AREA ==================== -->
+        <Grid Grid.Column="1" Margin="32,22,32,24">
+
+            <!-- 1. DASHBOARD VIEW (WhatsApp Image 1.10.23 PM) -->
+            <Grid Visibility="{Binding IsDashboardVisible}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!-- Top Header Row -->
+                <Grid Grid.Row="0" Margin="0,0,0,20">
+                    <StackPanel>
+                        <TextBlock Text="Dashboard" FontSize="30" FontWeight="Bold" Foreground="#0F172A" />
+                        <TextBlock Text="Receive audio from your phone and use it as a microphone in Windows."
+                                   FontSize="14.5" Foreground="#475569" Margin="0,4,0,0" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <!-- ● Running Pill -->
+                        <Border Background="#DCFCE7" CornerRadius="18" Padding="16,7" Margin="0,0,12,0">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Ellipse Width="9" Height="9" Fill="#16A34A" Margin="0,0,8,0" />
+                                <TextBlock Text="Running" FontSize="14" FontWeight="SemiBold" Foreground="#15803D" />
+                            </StackPanel>
+                        </Border>
+                        <!-- Circular Gear Button -->
+                        <Button Width="38" Height="38" Background="White" BorderBrush="#E5E7EB" BorderThickness="1"
+                                Cursor="Hand" Click="OnNavSettingsClick">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="1" CornerRadius="19">
+                                        <TextBlock Text="⚙" FontSize="17" Foreground="#0F172A"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Main Dashboard Two-Column Grid -->
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.45*" />
+                        <ColumnDefinition Width="22" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left Column: Connected Card + Input Level Bar -->
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="16" />
+                            <RowDefinition Height="64" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Connected Card -->
+                        <Border Grid.Row="0" Style="{StaticResource CardBorderStyle}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <!-- Card Header: ● Connected + Wi-Fi Badge -->
+                                <Grid Grid.Row="0">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Ellipse Width="12" Height="12" Fill="#16A34A" Margin="0,0,10,0" />
+                                            <TextBlock Text="{Binding ConnectionHeaderText}" FontSize="22" FontWeight="Bold" Foreground="#0F172A" />
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding DashboardPhoneSubtitle}" FontSize="14" Foreground="#475569" Margin="2,6,0,0" />
+                                    </StackPanel>
+
+                                    <Border HorizontalAlignment="Right" VerticalAlignment="Top"
+                                            Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1"
+                                            CornerRadius="18" Padding="14,6">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="🛜" Foreground="#16A34A" FontSize="14" Margin="0,0,6,0" />
+                                            <TextBlock Text="Wi-Fi" FontSize="14" FontWeight="SemiBold" Foreground="#0F172A" />
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+
+                                <!-- Center Microphone Circle + Left/Right Green Audio Bars -->
+                                <Grid Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,12">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <!-- Left Waveform Bars -->
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,0,14,0">
+                                            <Border Width="6" Height="16" CornerRadius="3" Background="#86EFAC" Margin="2,0" VerticalAlignment="Bottom" />
+                                            <Border Width="6" Height="24" CornerRadius="3" Background="#4ADE80" Margin="2,0" VerticalAlignment="Bottom" />
+                                            <Border Width="6" Height="34" CornerRadius="3" Background="#22C55E" Margin="2,0" VerticalAlignment="Bottom" />
+                                            <Border Width="6" Height="42" CornerRadius="3" Background="#16A34A" Margin="2,0" VerticalAlignment="Bottom" />
+                                            <Border Width="6" Height="56" CornerRadius="3" Background="#15803D" Margin="2,0" VerticalAlignment="Bottom" />
+                                            <Border Width="6" Height="68" CornerRadius="3" Background="#15803D" Margin="2,0" VerticalAlignment="Bottom" />
+                                            <Border Width="6" Height="48" CornerRadius="3" Background="#16A34A" Margin="2,0" VerticalAlignment="Bottom" />
+                                            <Border Width="6" Height="58" CornerRadius="3" Background="#16A34A" Margin="2,0" VerticalAlignment="Bottom" />
+                                            <Border Width="6" Height="36" CornerRadius="3" Background="#22C55E" Margin="2,0" VerticalAlignment="Bottom" />
+                                            <Border Width="6" Height="26" CornerRadius="3" Background="#4ADE80" Margin="2,0" VerticalAlignment="Bottom" />
+                                        </StackPanel>
+
+                                        <!-- Center Glowing Mic Circle -->
+                                        <Grid Width="154" Height="154">
+                                            <Ellipse Width="154" Height="154" Fill="#22DCFCE7" />
+                                            <Ellipse Width="134" Height="134" Fill="#FFFFFF" Stroke="#22C55E" StrokeThickness="3.5" />
+                                            <TextBlock Text="🎙" FontSize="54" Foreground="#16A34A"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Grid>
+
+                                        <!-- Right Waveform Bars -->
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Margin="14,0,0,0">
+                                            <Border Width="6" Height="34" CornerRadius="3" Background="#22C55E" Margin="2,0" VerticalAlignment="Bottom" />
+                                            <Border Width="6" Height="52" CornerRadius="3" Background="#16A34A" Margin="2,0" VerticalAlignment="Bottom" />
+                                            <Border Width="6" Height="44" CornerRadius="3" Background="#16A34A" Margin="2,0" VerticalAlignment="Bottom" />
+                                            <Border Width="6" Height="66" CornerRadius="3" Background="#15803D" Margin="2,0" VerticalAlignment="Bottom" />
+                                            <Border Width="6" Height="54" CornerRadius="3" Background="#16A34A" Margin="2,0" VerticalAlignment="Bottom" />
+                                            <Border Width="6" Height="40" CornerRadius="3" Background="#22C55E" Margin="2,0" VerticalAlignment="Bottom" />
+                                            <Border Width="6" Height="48" CornerRadius="3" Background="#16A34A" Margin="2,0" VerticalAlignment="Bottom" />
+                                            <Border Width="6" Height="30" CornerRadius="3" Background="#4ADE80" Margin="2,0" VerticalAlignment="Bottom" />
+                                            <Border Width="6" Height="22" CornerRadius="3" Background="#86EFAC" Margin="2,0" VerticalAlignment="Bottom" />
+                                            <Border Width="6" Height="14" CornerRadius="3" Background="#BBF7D0" Margin="2,0" VerticalAlignment="Bottom" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Bottom 3 Circular Buttons: Mute | Disconnect | Settings -->
+                                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,6,0,0">
+                                    <!-- Mute -->
+                                    <StackPanel Width="90" HorizontalAlignment="Center" Margin="16,0">
+                                        <Button Width="56" Height="56" Cursor="Hand" Click="OnToggleMuteClick">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="#F1F5F9" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="28">
+                                                        <TextBlock Text="🔇" FontSize="22" Foreground="#1E293B"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+                                        <TextBlock Text="{Binding MuteButtonLabel}" FontSize="14" FontWeight="Medium"
+                                                   Foreground="#0F172A" HorizontalAlignment="Center" Margin="0,8,0,0" />
+                                    </StackPanel>
+
+                                    <!-- Disconnect -->
+                                    <StackPanel Width="96" HorizontalAlignment="Center" Margin="16,0">
+                                        <Button Width="60" Height="60" Cursor="Hand" Click="OnDisconnectClick">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="#EF4444" CornerRadius="30">
+                                                        <Border Width="18" Height="18" Background="White" CornerRadius="3"
+                                                                HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+                                        <TextBlock Text="Disconnect" FontSize="14" FontWeight="Bold"
+                                                   Foreground="#0F172A" HorizontalAlignment="Center" Margin="0,8,0,0" />
+                                    </StackPanel>
+
+                                    <!-- Settings -->
+                                    <StackPanel Width="90" HorizontalAlignment="Center" Margin="16,0">
+                                        <Button Width="56" Height="56" Cursor="Hand" Click="OnNavSettingsClick">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="#F1F5F9" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="28">
+                                                        <TextBlock Text="⚙" FontSize="22" Foreground="#1E293B"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+                                        <TextBlock Text="Settings" FontSize="14" FontWeight="Medium"
+                                                   Foreground="#0F172A" HorizontalAlignment="Center" Margin="0,8,0,0" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Input Level Card -->
+                        <Border Grid.Row="2" Style="{StaticResource CardBorderStyle}" Padding="20,14">
+                            <Grid VerticalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,18,0">
+                                    <TextBlock Text="🎙" FontSize="16" Foreground="#0F172A" Margin="0,0,10,0" VerticalAlignment="Center" />
+                                    <TextBlock Text="Input Level" FontSize="15" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
+                                </StackPanel>
+
+                                <ProgressBar Grid.Column="1" Height="11" Minimum="0" Maximum="100"
+                                             Value="{Binding InputLevelPercent}"
+                                             Background="#E2E8F0" Foreground="#16A34A" BorderThickness="0" />
+
+                                <TextBlock Grid.Column="2" Text="{Binding RmsLevelText}" FontSize="14.5" FontWeight="Medium"
+                                           Foreground="#334155" Margin="18,0,0,0" VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <!-- Right Column: Virtual Microphone + Audio Information -->
+                    <Grid Grid.Column="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="18" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Virtual Microphone Card -->
+                        <Border Grid.Row="0" Style="{StaticResource CardBorderStyle}">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,16">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Text="🖥" FontSize="18" Foreground="#0F172A" Margin="0,0,10,0" />
+                                        <TextBlock Text="Virtual Microphone" FontSize="17" FontWeight="Bold" Foreground="#0F172A" />
+                                    </StackPanel>
+
+                                    <Border HorizontalAlignment="Right" Background="#DCFCE7" CornerRadius="14" Padding="12,5">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="✔" FontSize="12" Foreground="#16A34A" FontWeight="Bold" Margin="0,0,6,0" />
+                                            <TextBlock Text="Ready" FontSize="13" FontWeight="SemiBold" Foreground="#15803D" />
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+
+                                <TextBlock Text="Output Device" FontSize="13.5" Foreground="#475569" Margin="0,0,0,8" />
+
+                                <ComboBox ItemsSource="{Binding OutputDevices}"
+                                          SelectedItem="{Binding SelectedOutputDevice}"
+                                          Height="40" FontSize="14" VerticalContentAlignment="Center"
+                                          Padding="12,0" Margin="0,0,0,16" />
+
+                                <Border Background="#ECFDF5" CornerRadius="12" Padding="14,12">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="ⓘ" FontSize="16" Foreground="#16A34A" FontWeight="Bold" Margin="0,1,10,0" />
+                                        <TextBlock Text="Select &quot;VB-Cable Input&quot; as your microphone&#x0a;in apps like ChatGPT, OBS, Zoom, etc."
+                                                   FontSize="13" LineHeight="19" Foreground="#0F172A" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Audio Information Card -->
+                        <Border Grid.Row="2" Style="{StaticResource CardBorderStyle}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
+                                    <TextBlock Text="⫶" FontSize="18" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,10,0" />
+                                    <TextBlock Text="Audio Information" FontSize="17" FontWeight="Bold" Foreground="#0F172A" />
+                                </StackPanel>
+
+                                <Grid Margin="0,7">
+                                    <TextBlock Text="Sample Rate" FontSize="14.5" Foreground="#334155" />
+                                    <TextBlock Text="{Binding SampleRateText}" FontSize="14.5" FontWeight="Medium" Foreground="#0F172A" HorizontalAlignment="Right" />
+                                </Grid>
+                                <Separator Background="#F1F5F9" Margin="0,6" />
+
+                                <Grid Margin="0,7">
+                                    <TextBlock Text="Format" FontSize="14.5" Foreground="#334155" />
+                                    <TextBlock Text="{Binding FormatText}" FontSize="14.5" FontWeight="Medium" Foreground="#0F172A" HorizontalAlignment="Right" />
+                                </Grid>
+                                <Separator Background="#F1F5F9" Margin="0,6" />
+
+                                <Grid Margin="0,7">
+                                    <TextBlock Text="Channels" FontSize="14.5" Foreground="#334155" />
+                                    <TextBlock Text="{Binding ChannelsText}" FontSize="14.5" FontWeight="Medium" Foreground="#0F172A" HorizontalAlignment="Right" />
+                                </Grid>
+                                <Separator Background="#F1F5F9" Margin="0,6" />
+
+                                <Grid Margin="0,7">
+                                    <TextBlock Text="Latency" FontSize="14.5" Foreground="#334155" />
+                                    <TextBlock Text="{Binding LatencyText}" FontSize="14.5" FontWeight="Medium" Foreground="#0F172A" HorizontalAlignment="Right" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Grid>
+
+            <!-- 2. DEVICES VIEW (WhatsApp Image 1.11.41 PM) -->
+            <Grid Visibility="{Binding IsDevicesVisible}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                    <TextBlock Text="Devices" FontSize="30" FontWeight="Bold" Foreground="#0F172A" />
+                    <TextBlock Text="Manage connected devices, trusted devices, and pairing settings."
+                               FontSize="14.5" Foreground="#475569" Margin="0,4,0,0" />
+                </StackPanel>
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="22" />
+                        <ColumnDefinition Width="1.25*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left Card: My Devices -->
+                    <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,18">
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Width="38" Height="38" Background="#E8F8EE" CornerRadius="10" Margin="0,0,12,0">
+                                        <TextBlock Text="📱" FontSize="18" Foreground="#16A34A" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <StackPanel>
+                                        <TextBlock Text="My Devices" FontSize="17" FontWeight="Bold" Foreground="#0F172A" />
+                                        <TextBlock Text="All paired and recently connected devices." FontSize="12.5" Foreground="#64748B" />
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <Border HorizontalAlignment="Right" VerticalAlignment="Top"
+                                        Background="#E8F8EE" CornerRadius="16" Padding="12,7">
+                                    <TextBlock Text="⊕ Pair New Device" FontSize="13" FontWeight="SemiBold" Foreground="#15803D" />
+                                </Border>
+                            </Grid>
+
+                            <!-- Device 1: Active Connected iQOO Neo 10 -->
+                            <Border Background="#E8F8EE" CornerRadius="12" Padding="14,12" Margin="0,0,0,10">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📱" FontSize="24" VerticalAlignment="Center" Margin="0,0,14,0" />
+                                        <StackPanel>
+                                            <TextBlock Text="iQOO Neo 10" FontSize="15.5" FontWeight="Bold" Foreground="#0F172A" />
+                                            <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                                                <Ellipse Width="9" Height="9" Fill="#16A34A" Margin="0,0,6,0" VerticalAlignment="Center" />
+                                                <TextBlock Text="Connected · 192.168.1.42" FontSize="13.5" Foreground="#0F172A" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <TextBlock Text="›" FontSize="22" Foreground="#475569" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                </Grid>
+                            </Border>
+
+                            <!-- Device 2: Harinath's Phone -->
+                            <Border Background="White" BorderBrush="#F1F5F9" BorderThickness="1" CornerRadius="12" Padding="14,12" Margin="0,0,0,10">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📱" FontSize="24" VerticalAlignment="Center" Margin="0,0,14,0" />
+                                        <StackPanel>
+                                            <TextBlock Text="Harinath's Phone" FontSize="15.5" FontWeight="Bold" Foreground="#0F172A" />
+                                            <TextBlock Text="Last connected: Nov 12, 2026, 10:24 PM" FontSize="13" Foreground="#64748B" Margin="0,3,0,0" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <TextBlock Text="›" FontSize="22" Foreground="#475569" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                </Grid>
+                            </Border>
+
+                            <!-- Device 3: Android Device -->
+                            <Border Background="White" BorderBrush="#F1F5F9" BorderThickness="1" CornerRadius="12" Padding="14,12">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📱" FontSize="24" VerticalAlignment="Center" Margin="0,0,14,0" />
+                                        <StackPanel>
+                                            <TextBlock Text="Android Device" FontSize="15.5" FontWeight="Bold" Foreground="#0F172A" />
+                                            <TextBlock Text="Last connected: Nov 10, 2026, 04:18 PM" FontSize="13" Foreground="#64748B" Margin="0,3,0,0" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <TextBlock Text="›" FontSize="22" Foreground="#475569" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Right Column: Selected Device Detail Card + Live Audio Card + 3 Action Buttons -->
+                    <Grid Grid.Column="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="16" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="16" />
+                            <RowDefinition Height="58" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Selected Device Overview Card -->
+                        <Border Grid.Row="0" Style="{StaticResource CardBorderStyle}">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,18">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Width="54" Height="100" CornerRadius="10" Background="#062E1E" BorderBrush="#1E293B" BorderThickness="2" Margin="0,0,18,0" />
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding ConnectedDeviceName}" FontSize="24" FontWeight="Bold" Foreground="#0F172A" />
+                                            <StackPanel Orientation="Horizontal" Margin="0,6,0,6">
+                                                <Ellipse Width="10" Height="10" Fill="#16A34A" Margin="0,0,7,0" VerticalAlignment="Center" />
+                                                <TextBlock Text="Connected" FontSize="15" FontWeight="SemiBold" Foreground="#16A34A" />
+                                            </StackPanel>
+                                            <TextBlock Text="Android 15   |   PhoneMic v1.0.0" FontSize="13.5" Foreground="#475569" />
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <Border HorizontalAlignment="Right" VerticalAlignment="Top" Width="38" Height="38"
+                                            Background="#F8FAFC" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="10">
+                                        <TextBlock Text="•••" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                </Grid>
+
+                                <!-- 4 Telemetry Columns: IP Address | Port | Battery | Wi-Fi -->
+                                <UniformGrid Columns="4">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Width="34" Height="34" Background="#E8F8EE" CornerRadius="8" Margin="0,0,10,0">
+                                            <TextBlock Text="🛜" Foreground="#16A34A" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Border>
+                                        <StackPanel>
+                                            <TextBlock Text="IP Address" FontSize="12" Foreground="#64748B" />
+                                            <TextBlock Text="{Binding ConnectedDeviceIp}" FontSize="14" FontWeight="Bold" Foreground="#0F172A" />
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Width="34" Height="34" Background="#E8F8EE" CornerRadius="8" Margin="0,0,10,0">
+                                            <TextBlock Text="⫶" Foreground="#16A34A" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Border>
+                                        <StackPanel>
+                                            <TextBlock Text="Port" FontSize="12" Foreground="#64748B" />
+                                            <TextBlock Text="{Binding Port}" FontSize="14" FontWeight="Bold" Foreground="#0F172A" />
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Width="34" Height="34" Background="#E8F8EE" CornerRadius="8" Margin="0,0,10,0">
+                                            <TextBlock Text="🔋" Foreground="#16A34A" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Border>
+                                        <StackPanel>
+                                            <TextBlock Text="Battery" FontSize="12" Foreground="#64748B" />
+                                            <TextBlock Text="{Binding BatteryText}" FontSize="14" FontWeight="Bold" Foreground="#0F172A" />
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Width="34" Height="34" Background="#E8F8EE" CornerRadius="8" Margin="0,0,10,0">
+                                            <TextBlock Text="📶" Foreground="#16A34A" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Border>
+                                        <StackPanel>
+                                            <TextBlock Text="Wi-Fi" FontSize="12" Foreground="#64748B" />
+                                            <TextBlock Text="{Binding WifiSsid}" FontSize="14" FontWeight="Bold" Foreground="#0F172A" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </UniformGrid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Live Audio from Device Card -->
+                        <Border Grid.Row="2" Style="{StaticResource CardBorderStyle}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
+                                    <Border Width="34" Height="34" Background="#E8F8EE" CornerRadius="8" Margin="0,0,10,0">
+                                        <TextBlock Text="⫶" Foreground="#16A34A" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <TextBlock Text="Live Audio from Device" FontSize="17" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
+                                </StackPanel>
+
+                                <ItemsControl ItemsSource="{Binding SpectrumBarHeights}" HorizontalAlignment="Center" Height="78">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Width="7" Height="{Binding}" CornerRadius="3.5" Margin="3.2,0"
+                                                    VerticalAlignment="Bottom" Background="#16A34A" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Bottom 3 Rectangular Action Buttons: [ 🔇 Mute ]  [ ⚙ Device Settings ]  [ 🔗 Disconnect ] -->
+                        <UniformGrid Grid.Row="4" Columns="3">
+                            <Button Margin="0,0,8,0" Background="White" BorderBrush="#E5E7EB" BorderThickness="1"
+                                    Cursor="Hand" Click="OnToggleMuteClick">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="🔇" FontSize="16" Margin="0,0,8,0" />
+                                    <TextBlock Text="{Binding MuteButtonLabel}" FontSize="15" FontWeight="SemiBold" Foreground="#0F172A" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button Margin="4,0" Background="White" BorderBrush="#E5E7EB" BorderThickness="1"
+                                    Cursor="Hand" Click="OnNavAudioClick">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="⚙" FontSize="16" Margin="0,0,8,0" />
+                                    <TextBlock Text="Device Settings" FontSize="15" FontWeight="SemiBold" Foreground="#0F172A" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button Margin="8,0,0,0" Background="#FEF2F2" BorderBrush="#FCA5A5" BorderThickness="1"
+                                    Cursor="Hand" Click="OnDisconnectClick">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="🔗" FontSize="16" Foreground="#DC2626" Margin="0,0,8,0" />
+                                    <TextBlock Text="Disconnect" FontSize="15" FontWeight="Bold" Foreground="#DC2626" />
+                                </StackPanel>
+                            </Button>
+                        </UniformGrid>
+                    </Grid>
+                </Grid>
+            </Grid>
+
+            <!-- 3. AUDIO VIEW (WhatsApp Image 1.12.22 PM) -->
+            <Grid Visibility="{Binding IsAudioVisible}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                    <TextBlock Text="Audio" FontSize="30" FontWeight="Bold" Foreground="#0F172A" />
+                    <TextBlock Text="Configure microphone input, output and audio quality."
+                               FontSize="14.5" Foreground="#475569" Margin="0,4,0,0" />
+                </StackPanel>
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="22" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left Card: Audio Input (From Phone) -->
+                    <Border Grid.Column="0" Style="{StaticResource CardBorderStyle}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                                <Border Width="36" Height="36" Background="#E8F8EE" CornerRadius="10" Margin="0,0,12,0">
+                                    <TextBlock Text="📱" FontSize="17" Foreground="#16A34A" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <TextBlock Text="Audio Input (From Phone)" FontSize="18" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
+                            </StackPanel>
+
+                            <ItemsControl ItemsSource="{Binding SpectrumBarHeights}" HorizontalAlignment="Center" Height="74" Margin="0,8,0,24">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Width="6.5" Height="{Binding}" CornerRadius="3" Margin="2.6,0"
+                                                VerticalAlignment="Bottom" Background="#16A34A" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <Grid Margin="0,8">
+                                <TextBlock Text="Sample Rate" FontSize="15" Foreground="#0F172A" />
+                                <TextBlock Text="{Binding SampleRateText}" FontSize="15" Foreground="#0F172A" HorizontalAlignment="Right" />
+                            </Grid>
+                            <Separator Background="#F1F5F9" Margin="0,6" />
+
+                            <Grid Margin="0,8">
+                                <TextBlock Text="Format" FontSize="15" Foreground="#0F172A" />
+                                <TextBlock Text="{Binding FormatText}" FontSize="15" Foreground="#0F172A" HorizontalAlignment="Right" />
+                            </Grid>
+                            <Separator Background="#F1F5F9" Margin="0,6" />
+
+                            <Grid Margin="0,8">
+                                <TextBlock Text="Channels" FontSize="15" Foreground="#0F172A" />
+                                <TextBlock Text="{Binding ChannelsText}" FontSize="15" Foreground="#0F172A" HorizontalAlignment="Right" />
+                            </Grid>
+                            <Separator Background="#F1F5F9" Margin="0,6" />
+
+                            <Grid Margin="0,12,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Current Level" FontSize="15" Foreground="#0F172A" Margin="0,0,18,0" />
+                                <ProgressBar Grid.Column="1" Height="11" Minimum="0" Maximum="100"
+                                             Value="{Binding InputLevelPercent}" Background="#E2E8F0" Foreground="#16A34A" BorderThickness="0" />
+                                <TextBlock Grid.Column="2" Text="{Binding RmsLevelText}" FontSize="15" Foreground="#0F172A" Margin="18,0,0,0" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Right Column: Audio Output + Quality & Performance -->
+                    <Grid Grid.Column="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="18" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Border Grid.Row="0" Style="{StaticResource CardBorderStyle}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
+                                    <Border Width="36" Height="36" Background="#E8F8EE" CornerRadius="10" Margin="0,0,12,0">
+                                        <TextBlock Text="🖥" FontSize="17" Foreground="#16A34A" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <TextBlock Text="Audio Output (Virtual Microphone)" FontSize="18" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
+                                </StackPanel>
+
+                                <Grid Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="130" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Output Device" FontSize="14.5" Foreground="#0F172A" VerticalAlignment="Center" />
+                                    <ComboBox Grid.Column="1" ItemsSource="{Binding OutputDevices}"
+                                              SelectedItem="{Binding SelectedOutputDevice}"
+                                              Height="40" FontSize="14.5" VerticalContentAlignment="Center" Padding="12,0" />
+                                </Grid>
+
+                                <Border Background="#E8F8EE" CornerRadius="12" Padding="16,12">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Width="24" Height="24" Background="#16A34A" CornerRadius="12" Margin="0,0,12,0">
+                                            <TextBlock Text="✔" Foreground="White" FontSize="13" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Border>
+                                        <StackPanel>
+                                            <TextBlock Text="Virtual Microphone Ready" FontSize="14.5" FontWeight="Bold" Foreground="#15803D" />
+                                            <TextBlock Text="Select &quot;VB-Cable Input&quot; in apps like OBS, Zoom, ChatGPT, etc."
+                                                       FontSize="13.5" Foreground="#0F172A" Margin="0,2,0,0" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Row="2" Style="{StaticResource CardBorderStyle}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
+                                    <Border Width="36" Height="36" Background="#E8F8EE" CornerRadius="10" Margin="0,0,12,0">
+                                        <TextBlock Text="⫶" FontSize="17" FontWeight="Bold" Foreground="#16A34A" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <TextBlock Text="Quality &amp; Performance" FontSize="18" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
+                                </StackPanel>
+
+                                <Grid Margin="0,0,0,14">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Audio Quality" FontSize="14.5" Foreground="#0F172A" VerticalAlignment="Center" />
+                                    <ComboBox Grid.Column="1" ItemsSource="{Binding AudioQualityOptions}"
+                                              SelectedItem="{Binding SelectedAudioQuality}"
+                                              Height="40" FontSize="14.5" VerticalContentAlignment="Center" Padding="12,0" />
+                                </Grid>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Latency Mode  ⓘ" FontSize="14.5" Foreground="#0F172A" VerticalAlignment="Center" />
+                                    <ComboBox Grid.Column="1" ItemsSource="{Binding LatencyModeOptions}"
+                                              SelectedItem="{Binding SelectedLatencyMode}"
+                                              Height="40" FontSize="14.5" VerticalContentAlignment="Center" Padding="12,0" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Grid>
+
+            <!-- 4. NETWORK VIEW (WhatsApp Image 1.12.21 PM) -->
+            <Grid Visibility="{Binding IsNetworkVisible}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                    <TextBlock Text="Network" FontSize="30" FontWeight="Bold" Foreground="#0F172A" />
+                    <TextBlock Text="Manage network connection and streaming settings."
+                               FontSize="14.5" Foreground="#475569" Margin="0,4,0,0" />
+                </StackPanel>
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="22" />
+                        <ColumnDefinition Width="1.15*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left Column: Connection + Connection Security -->
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="18" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Border Grid.Row="0" Style="{StaticResource CardBorderStyle}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
+                                    <Border Width="36" Height="36" Background="#E8F8EE" CornerRadius="10" Margin="0,0,12,0">
+                                        <TextBlock Text="🛜" FontSize="17" Foreground="#16A34A" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <TextBlock Text="Connection" FontSize="18" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
+                                </StackPanel>
+
+                                <Grid Margin="0,8">
+                                    <TextBlock Text="Network Type" FontSize="15" FontWeight="Medium" Foreground="#0F172A" />
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <TextBlock Text="🛜 " Foreground="#16A34A" FontSize="14" />
+                                        <TextBlock Text="{Binding NetworkTypeDisplay}" FontSize="15" Foreground="#0F172A" />
+                                    </StackPanel>
+                                </Grid>
+                                <Separator Background="#F1F5F9" Margin="0,6" />
+
+                                <Grid Margin="0,8">
+                                    <TextBlock Text="PC IP Address" FontSize="15" FontWeight="Medium" Foreground="#0F172A" />
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <TextBlock Text="{Binding ConnectedDeviceIp}" FontSize="15" Foreground="#0F172A" Margin="0,0,10,0" />
+                                        <Button Content="📋" Background="Transparent" BorderThickness="0" Cursor="Hand" Click="OnCopyIpClick" />
+                                    </StackPanel>
+                                </Grid>
+                                <Separator Background="#F1F5F9" Margin="0,6" />
+
+                                <Grid Margin="0,8">
+                                    <TextBlock Text="Port" FontSize="15" FontWeight="Medium" Foreground="#0F172A" />
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <TextBlock Text="{Binding Port}" FontSize="15" Foreground="#0F172A" Margin="0,0,10,0" />
+                                        <Button Content="📋" Background="Transparent" BorderThickness="0" Cursor="Hand" Click="OnCopyPortClick" />
+                                    </StackPanel>
+                                </Grid>
+                                <Separator Background="#F1F5F9" Margin="0,6" />
+
+                                <Grid Margin="0,8,0,0">
+                                    <TextBlock Text="Status" FontSize="15" FontWeight="Medium" Foreground="#0F172A" />
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Ellipse Width="10" Height="10" Fill="#16A34A" Margin="0,0,8,0" VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding NetworkStatusText}" FontSize="15" Foreground="#0F172A" />
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Row="2" Style="{StaticResource CardBorderStyle}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                    <Border Width="36" Height="36" Background="#E8F8EE" CornerRadius="10" Margin="0,0,12,0">
+                                        <TextBlock Text="🛡" FontSize="17" Foreground="#16A34A" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <TextBlock Text="Connection Security" FontSize="18" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
+                                </StackPanel>
+
+                                <Grid>
+                                    <TextBlock Text="Use encrypted connection (recommended)" FontSize="15" Foreground="#0F172A" VerticalAlignment="Center" />
+                                    <CheckBox IsChecked="{Binding UseEncryption}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- Right Column: Network Performance + Advanced -->
+                    <Grid Grid.Column="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="18" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Border Grid.Row="0" Style="{StaticResource CardBorderStyle}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
+                                    <Border Width="36" Height="36" Background="#E8F8EE" CornerRadius="10" Margin="0,0,12,0">
+                                        <TextBlock Text="📶" FontSize="17" Foreground="#16A34A" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <TextBlock Text="Network Performance" FontSize="18" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
+                                </StackPanel>
+
+                                <UniformGrid Columns="3" Margin="0,0,0,18">
+                                    <StackPanel>
+                                        <TextBlock Text="⏱  Latency" FontSize="13.5" Foreground="#475569" />
+                                        <Border Background="#E8F8EE" CornerRadius="12" Padding="12,4" HorizontalAlignment="Left" Margin="0,6,0,0">
+                                            <TextBlock Text="{Binding LatencyText}" FontSize="14.5" FontWeight="Bold" Foreground="#15803D" />
+                                        </Border>
+                                    </StackPanel>
+
+                                    <StackPanel>
+                                        <TextBlock Text="⇅  Bandwidth" FontSize="13.5" Foreground="#475569" />
+                                        <Border Background="#E8F8EE" CornerRadius="12" Padding="12,4" HorizontalAlignment="Left" Margin="0,6,0,0">
+                                            <TextBlock Text="{Binding BandwidthText}" FontSize="14.5" FontWeight="Bold" Foreground="#15803D" />
+                                        </Border>
+                                    </StackPanel>
+
+                                    <StackPanel>
+                                        <TextBlock Text="❖  Packet Loss" FontSize="13.5" Foreground="#475569" />
+                                        <Border Background="#E8F8EE" CornerRadius="12" Padding="12,4" HorizontalAlignment="Left" Margin="0,6,0,0">
+                                            <TextBlock Text="{Binding PacketLossText}" FontSize="14.5" FontWeight="Bold" Foreground="#15803D" />
+                                        </Border>
+                                    </StackPanel>
+                                </UniformGrid>
+
+                                <!-- Smooth Green Area Throughput Graph -->
+                                <Grid Height="115">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="58" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Stretch">
+                                        <TextBlock Text="2.0 Mbps" FontSize="11" Foreground="#64748B" Margin="0,0,0,8" />
+                                        <TextBlock Text="1.5 Mbps" FontSize="11" Foreground="#64748B" Margin="0,0,0,8" />
+                                        <TextBlock Text="1.0 Mbps" FontSize="11" Foreground="#64748B" Margin="0,0,0,8" />
+                                        <TextBlock Text="0.5 Mbps" FontSize="11" Foreground="#64748B" Margin="0,0,0,8" />
+                                        <TextBlock Text="0 Mbps" FontSize="11" Foreground="#64748B" />
+                                    </StackPanel>
+                                    <Canvas Grid.Column="1" ClipToBounds="True">
+                                        <Path Data="M 0,68 C 40,48 80,76 120,62 C 160,48 200,72 240,56 C 280,44 320,68 360,54 C 400,48 430,66 460,58 L 460,105 L 0,105 Z"
+                                              Fill="#3322C55E" />
+                                        <Path Data="M 0,68 C 40,48 80,76 120,62 C 160,48 200,72 240,56 C 280,44 320,68 360,54 C 400,48 430,66 460,58"
+                                              Stroke="#16A34A" StrokeThickness="2.5" />
+                                    </Canvas>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Row="2" Style="{StaticResource CardBorderStyle}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                                    <Border Width="36" Height="36" Background="#E8F8EE" CornerRadius="10" Margin="0,0,12,0">
+                                        <TextBlock Text="⚙" FontSize="17" Foreground="#16A34A" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <TextBlock Text="Advanced" FontSize="18" FontWeight="Bold" Foreground="#0F172A" VerticalAlignment="Center" />
+                                </StackPanel>
+
+                                <Grid Margin="0,6">
+                                    <TextBlock Text="Allow connections from the same network only" FontSize="15" Foreground="#0F172A" VerticalAlignment="Center" />
+                                    <CheckBox IsChecked="{Binding SameNetworkOnly}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                </Grid>
+                                <Separator Background="#F1F5F9" Margin="0,6" />
+                                <Grid Margin="0,6">
+                                    <TextBlock Text="Auto discover devices" FontSize="15" Foreground="#0F172A" VerticalAlignment="Center" />
+                                    <CheckBox IsChecked="{Binding AutoDiscoverDevices}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Grid>
+
+            <!-- 5. SETTINGS & ABOUT VIEWS -->
+            <Grid Visibility="{Binding IsSettingsVisible}">
+                <Border Style="{StaticResource CardBorderStyle}" VerticalAlignment="Top">
+                    <StackPanel>
+                        <TextBlock Text="Settings" FontSize="26" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,8" />
+                        <TextBlock Text="Configure Windows startup, audio routing, and security defaults." FontSize="14" Foreground="#64748B" Margin="0,0,0,20" />
+                        <CheckBox Content="Start PhoneMic automatically when Windows signs in" IsChecked="True" FontSize="15" Margin="0,8" />
+                        <CheckBox Content="Minimize to system tray when window is closed" IsChecked="True" FontSize="15" Margin="0,8" />
+                        <CheckBox Content="Automatically route incoming phone stream to VB-Cable Input" IsChecked="True" FontSize="15" Margin="0,8" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Grid Visibility="{Binding IsAboutVisible}">
+                <Border Style="{StaticResource CardBorderStyle}" VerticalAlignment="Top">
+                    <StackPanel>
+                        <TextBlock Text="PhoneMic v1.0.0" FontSize="26" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,8" />
+                        <TextBlock Text="Turn your Android smartphone into a low-latency wireless microphone for Windows 10/11." FontSize="15" Foreground="#475569" Margin="0,0,0,14" />
+                        <TextBlock Text="• Protocol: 48 kHz 16-bit Mono PCM over UDP/TCP port 55123 with AES-256-GCM encryption&#x0a;• Virtual Audio Driver: Routes seamlessly into VB-CABLE (VB-Cable Input)&#x0a;• License: MIT Open Source License"
+                                   FontSize="14" LineHeight="22" Foreground="#334155" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+        </Grid>
+    </Grid>
+</Window>
