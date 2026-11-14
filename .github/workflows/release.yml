@@ -30,6 +30,7 @@ jobs:
         run: |
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
           sed -i 's/compileSdk = 35/compileSdk = 34/g; s/targetSdk = 35/targetSdk = 34/g' android/app/build.gradle.kts
+          sed -i 's/private val streamClient =/private val streamClient: AudioStreamClient =/g; s/private val audioCaptureEngine =/private val audioCaptureEngine: AudioCaptureEngine =/g' android/app/src/main/java/com/phonemic/app/viewmodel/PhoneMicViewModel.kt
           cd android
           gradle assembleDebug --no-daemon
           cp app/build/outputs/apk/debug/app-debug.apk ../PhoneMic-v1.0.0.apk
