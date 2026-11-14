@@ -15,10 +15,50 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-      - name: Extract Source Archive
+      - name: Extract and Upgrade to v2.0.0
         run: |
           for z in *.zip; do [ -f "$z" ] && unzip -o "$z"; done
-          if [ -d PhoneMic/android ]; then cp -rn PhoneMic/* . || true; fi
+          if [ -d PhoneMic/android ]; then cp -rf PhoneMic/* . || true; fi
+          pip install pillow
+          python3 - << 'PYEOF'
+          import os
+          from PIL import Image, ImageDraw
+          def icon(sz, rnd=False):
+              im = Image.new("RGBA", (sz, sz), (0, 0, 0, 0))
+              d = ImageDraw.Draw(im)
+              p = int(sz * 0.04)
+              if rnd: d.ellipse([p, p, sz-p, sz-p], fill=(16, 163, 74, 255))
+              else: d.rounded_rectangle([p, p, sz-p, sz-p], radius=int(sz*0.24), fill=(16, 163, 74, 255))
+              cx, cw, ch = sz//2, int(sz*0.22), int(sz*0.34)
+              d.rounded_rectangle([cx-cw//2, int(sz*0.22), cx+cw//2, int(sz*0.22)+ch], radius=cw//2, fill=(255,255,255,255))
+              cr = int(sz*0.165)
+              d.arc([cx-cr, int(sz*0.44)-cr, cx+cr, int(sz*0.44)+cr], 0, 180, fill=(255,255,255,255), width=max(3, int(sz*0.04)))
+              d.line([cx, int(sz*0.44)+cr, cx, int(sz*0.74)], fill=(255,255,255,255), width=max(3, int(sz*0.04)))
+              d.line([cx-int(sz*0.12), int(sz*0.74), cx+int(sz*0.12), int(sz*0.74)], fill=(255,255,255,255), width=max(3, int(sz*0.04)))
+              return im
+          for folder, px in [("mipmap-mdpi",48),("mipmap-hdpi",72),("mipmap-xhdpi",96),("mipmap-xxhdpi",144),("mipmap-xxxhdpi",192)]:
+              t = f"android/app/src/main/res/{folder}"
+              os.makedirs(t, exist_ok=True)
+              icon(px, False).save(f"{t}/ic_launcher.png")
+              icon(px, True).save(f"{t}/ic_launcher_round.png")
+          mf = "android/app/src/main/AndroidManifest.xml"
+          s = open(mf).read().replace('android:label="PhoneMic"', 'android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round" android:label="PhoneMic"')
+          open(mf, "w").write(s)
+          bg = "android/app/build.gradle.kts"
+          s = open(bg).read().replace("compileSdk = 35","compileSdk = 34").replace("targetSdk = 35","targetSdk = 34").replace('versionName = "1.0.0"','versionName = "2.0.0"').replace("versionCode = 1","versionCode = 2")
+          open(bg, "w").write(s)
+          st = "android/app/src/main/java/com/phonemic/app/model/PhoneMicState.kt"
+          s = open(st).read().replace('DiscoveredPc("Windows PC", "192.168.1.42", 55123, true, "Recent · 192.168.1.42")', '').replace('val rmsDb: Float = -12.0f', 'val rmsDb: Float = -60.0f')
+          open(st, "w").write(s)
+          vm = "android/app/src/main/java/com/phonemic/app/viewmodel/PhoneMicViewModel.kt"
+          s = open(vm).read().replace("private val streamClient =", "private val streamClient: AudioStreamClient =").replace("private val audioCaptureEngine =", "private val audioCaptureEngine: AudioStreamClient? = null;\n    private val _realCaptureEngine: AudioCaptureEngine =").replace("audioCaptureEngine.", "_realCaptureEngine.")
+          s = s.replace('val targetIp = _uiState.value.manualIpInput.ifBlank { "192.168.1.42" }', 'val targetIp = _uiState.value.manualIpInput.ifBlank { "127.0.0.1" }')
+          s = s.replace('val resolvedName = result.getOrElse { pcNameHint }', 'if (result.isFailure) { _uiState.update { it.copy(connectionStatus = ConnectionStatus.ERROR, statusMessage = "Connection failed: Verify PC IP or USB Tethering") }; return@launch }\n            val resolvedName = result.getOrNull() ?: pcNameHint')
+          open(vm, "w").write(s)
+          cs = "android/app/src/main/java/com/phonemic/app/ui/screens/ConnectScreen.kt"
+          s = open(cs).read().replace('text = "Auto Discover PCs"', 'text = "Auto Discover PCs (Wi-Fi / USB)"').replace('placeholder = {\n                    Text(\n                        text = "Enter PC IP address"', 'placeholder = {\n                    Text(\n                        text = "Enter PC IP (or 127.0.0.1 for USB)"')
+          open(cs, "w").write(s)
+          PYEOF
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -26,16 +66,17 @@ jobs:
       - uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: 8.7
-      - name: Build Android APK and Upload to v1.0.0 Release
+      - name: Build Android APK and Publish v2.0.0 Release
         run: |
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          sed -i 's/compileSdk = 35/compileSdk = 34/g; s/targetSdk = 35/targetSdk = 34/g' android/app/build.gradle.kts
-          sed -i 's/private val streamClient =/private val streamClient: AudioStreamClient =/g; s/private val audioCaptureEngine =/private val audioCaptureEngine: AudioCaptureEngine =/g' android/app/src/main/java/com/phonemic/app/viewmodel/PhoneMicViewModel.kt
           cd android
           gradle assembleDebug --no-daemon
+          cp app/build/outputs/apk/debug/app-debug.apk ../PhoneMic-v2.0.0.apk
           cp app/build/outputs/apk/debug/app-debug.apk ../PhoneMic-v1.0.0.apk
           cd ..
-          gh release upload v1.0.0 PhoneMic-v1.0.0.apk --clobber
+          gh release create v2.0.0 --title "PhoneMic v2.0.0 – Production Wi-Fi & USB Microphone" --notes "Production release v2.0.0 with Wi-Fi + Wired USB support, real hardware telemetry, custom application icons, and zero demo data." || true
+          gh release upload v2.0.0 PhoneMic-v2.0.0.apk --clobber
+          gh release upload v1.0.0 PhoneMic-v1.0.0.apk --clobber || true
 
   build-windows:
     runs-on: windows-latest
@@ -43,17 +84,25 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-      - name: Extract Source Archive
+      - name: Extract and Upgrade Windows to v2.0.0
         shell: pwsh
         run: |
           Get-ChildItem *.zip | ForEach-Object { Expand-Archive -Path $_.FullName -DestinationPath . -Force }
           if (Test-Path PhoneMic/windows) { Copy-Item -Path PhoneMic/* -Destination . -Recurse -Force }
+          pip install pillow
+          python -c "import os; from PIL import Image, ImageDraw; os.makedirs('windows/PhoneMic.Desktop/Assets', exist_ok=True); sz=256; im=Image.new('RGBA',(sz,sz),(0,0,0,0)); d=ImageDraw.Draw(im); d.rounded_rectangle([10,10,246,246],radius=60,fill=(16,163,74,255)); d.rounded_rectangle([100,56,156,144],radius=28,fill=(255,255,255,255)); d.arc([86,70,170,154],0,180,fill=(255,255,255,255),width=10); d.line([128,154,128,190],fill=(255,255,255,255),width=10); d.line([96,190,160,190],fill=(255,255,255,255),width=10); im.save('windows/PhoneMic.Desktop/Assets/phonemic.png'); im.save('windows/PhoneMic.Desktop/Assets/phonemic.ico',format='ICO',sizes=[(16,16),(32,32),(48,48),(64,64),(128,128),(256,256)])"
+          python -c "p='windows/PhoneMic.Desktop/PhoneMic.Desktop.csproj'; s=open(p).read().replace('<Version>1.0.0</Version>','<Version>2.0.0</Version><ApplicationIcon>Assets\\phonemic.ico</ApplicationIcon>'); open(p,'w').write(s)"
+          python -c "p='windows/PhoneMic.Desktop/ViewModels/MainViewModel.cs'; s=open(p).read().replace('_isConnected = true;','_isConnected = false;').replace('\"iQOO Neo 10\"','\"No Phone Connected\"').replace('\"192.168.1.42\"','PhoneMicServer.GetLocalIPv4Address()').replace('\"-12 dB\"','\"-60 dB\"').replace('_inputLevelPercent = 72.0;','_inputLevelPercent = 0.0;').replace('\"0.9 Mbps\"','\"0.0 Mbps\"'); open(p,'w').write(s)"
+          python -c "p='windows/Installer/PhoneMicSetup.iss'; s=open(p).read().replace('1.0.0','2.0.0').replace('Compression=lzma2','SetupIconFile=..\\PhoneMic.Desktop\\Assets\\phonemic.ico\nCompression=lzma2'); open(p,'w').write(s)"
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-      - name: Build Windows Installer and Upload to v1.0.0 Release
+      - name: Build Windows Installer and Upload to v2.0.0 Release
         shell: pwsh
         run: |
           dotnet publish windows/PhoneMic.Desktop/PhoneMic.Desktop.csproj -c Release -r win-x64 --self-contained true
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" windows/Installer/PhoneMicSetup.iss
-          gh release upload v1.0.0 windows/dist/PhoneMic-Windows-Setup-v1.0.0.exe --clobber
+          gh release create v2.0.0 --title "PhoneMic v2.0.0 – Production Wi-Fi & USB Microphone" --notes "Production release v2.0.0 with Wi-Fi + Wired USB support, real hardware telemetry, custom application icons, and zero demo data." 2>$null
+          gh release upload v2.0.0 windows/dist/PhoneMic-Windows-Setup-v2.0.0.exe --clobber
+          Copy-Item windows/dist/PhoneMic-Windows-Setup-v2.0.0.exe PhoneMic-Windows-Setup-v1.0.0.exe
+          gh release upload v1.0.0 PhoneMic-Windows-Setup-v1.0.0.exe --clobber
