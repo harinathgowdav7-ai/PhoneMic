@@ -1,4 +1,8 @@
 # PhoneMic
+## Download PhoneMic (v3.0.0 — Master Production Release)
+- **Download for Android (Phone APK):** [PhoneMic-v3.0.0.apk](../../releases/download/v3.0.0/PhoneMic-v3.0.0.apk)
+- **Download for Windows 10/11 (PC Installer):** [PhoneMic-Windows-Setup-v3.0.0.exe](../../releases/download/v3.0.0/PhoneMic-Windows-Setup-v3.0.0.exe)
+- **Release v3.0.0 Page:** [View Release v3.0.0](../../releases/tag/v3.0.0)
 ## Download PhoneMic (v2.0.0)
 - **Download for Android (Phone APK):** [PhoneMic-v2.0.0.apk](../../releases/download/v2.0.0/PhoneMic-v2.0.0.apk)
 - **Download for Windows 10/11 (PC Installer):** [PhoneMic-Windows-Setup-v2.0.0.exe](../../releases/download/v2.0.0/PhoneMic-Windows-Setup-v2.0.0.exe)
