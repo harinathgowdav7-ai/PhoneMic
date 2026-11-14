@@ -1,5 +1,8 @@
 # PhoneMic
-
+## Download PhoneMic (v2.0.0)
+- **Download for Android (Phone APK):** [PhoneMic-v2.0.0.apk](../../releases/download/v2.0.0/PhoneMic-v2.0.0.apk)
+- **Download for Windows 10/11 (PC Installer):** [PhoneMic-Windows-Setup-v2.0.0.exe](../../releases/download/v2.0.0/PhoneMic-Windows-Setup-v2.0.0.exe)
+- **All Releases Page:** [View GitHub Releases](../../releases)
 ## Download PhoneMic (v1.0.0)
 - **Download for Android (Phone APK):** [PhoneMic-v1.0.0.apk](../../releases/latest/download/PhoneMic-v1.0.0.apk)
 - **Download for Windows 10/11 (PC Installer):** [PhoneMic-Windows-Setup-v1.0.0.exe](../../releases/latest/download/PhoneMic-Windows-Setup-v1.0.0.exe)
